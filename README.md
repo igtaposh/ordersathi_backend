@@ -42,7 +42,7 @@ Frontend/
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/igtaposh/ordersathi.git
+   git clone https://github.com/igtaposh/ordersathi_backend.git
    cd ordersathi/Backend
    ```
 
