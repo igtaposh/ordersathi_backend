@@ -43,7 +43,7 @@ Frontend/
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/shopkeeper-order-manager.git
+   git clone https://github.com/igtaposh/shopkeeper-order-manager.git
    cd shopkeeper-order-manager/Backend
    ```
 
