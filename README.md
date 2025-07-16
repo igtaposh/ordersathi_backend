@@ -1,5 +1,4 @@
-# Shopkeeper Order Manager
-
+# Order Sathi
 A full-stack application for shopkeepers to manage suppliers, products, and orders efficiently.
 
 ## Features
@@ -43,8 +42,8 @@ Frontend/
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/igtaposh/shopkeeper-order-manager.git
-   cd shopkeeper-order-manager/Backend
+   git clone https://github.com/igtaposh/ordersathi_backend.git
+   cd ordersathi/Backend
    ```
 
 2. Install dependencies:
@@ -54,7 +53,7 @@ Frontend/
 
 3. Create a `.env` file in the `Backend` folder:
    ```
-   MONGO_URI=mongodb://localhost:27017/Shopkeeper-Order-Manager
+   MONGO_URI=mongodb://localhost:27017/ordersathi
    JWT_SECRET=your_jwt_secret
    PORT=8080
    ```
