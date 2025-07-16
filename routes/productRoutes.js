@@ -4,7 +4,7 @@ import { addProduct, deleteProduct, getProduct, getProducts, updateProduct } fro
 const router = express.Router();
 
 
-router.route('/add').post(authMid, addProduct);
+router.route('/add/:supplierId').post(authMid, addProduct);
 router.route('/').get(authMid, getProducts);
 router.route('/:id').get(authMid, getProduct).put(authMid, updateProduct).delete(authMid, deleteProduct);
 
