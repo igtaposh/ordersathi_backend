@@ -1,7 +1,7 @@
 import express from 'express';
 import { createOrder, generatePDF_doc, getMonthlySummary, getOrder, getRecentOrders, getTopProducts, getTopSuppliers } from '../controllers/orderController.js';
 import { authMid } from '../middleware/authMiddleware.js';
-import { get } from 'mongoose';
+
 const router = express.Router();
 
 
@@ -9,6 +9,7 @@ router.route('/new').post(authMid, createOrder);
 router.route('/:id').get(authMid, getOrder);
 router.route('/:id/pdf').get(authMid, generatePDF_doc);
 router.route('/').get(authMid, getRecentOrders);
+
 
 router.route('/stats/monthly').get(authMid, getMonthlySummary)
 router.route('/stats/top-products').get(authMid, getTopProducts);

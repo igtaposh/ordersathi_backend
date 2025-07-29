@@ -1,12 +1,13 @@
 import Product from '../models/Product.js';
 import Supplier from '../models/Supplier.js';
 
+
 // Add Product
 export const addProduct = async (req, res) => {
    try {
       const { name, weight, rate, mrp, type } = req.body;
       const { supplierId } = req.params;
-      
+
       if (!name || !supplierId || !weight || !rate || !mrp || !type) {
          return res.status(400).json({ msg: "Please fill all fields" });
       }

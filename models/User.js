@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 const userSchema = new mongoose.Schema({
    name:String,
    shopName:String,
+   role: String,
    phone: {
       type:String,
       required:true,

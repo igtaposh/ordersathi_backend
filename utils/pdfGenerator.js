@@ -24,6 +24,21 @@ async function generatePDF(order, type = 'shopkeeper') {
   return pdfBuffer;
 }
 
+// 🔥 NEW: Stock Report PDF Generator
+async function generateStockPDF(stockReport) {
+  const html = buildStockHTML(stockReport);
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  const pdfBuffer = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+    margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
+  });
+  await browser.close();
+  return pdfBuffer;
+}
+
 // 🔧 HTML builder function
 function buildHTML(order, type) {
   const styles = `
@@ -78,7 +93,7 @@ function buildHTML(order, type) {
       return `
         <tr>
           <td>${i + 1}</td>
-          <td class="product-name">${pr.name} ${pr.weight}</td>
+          <td class="product-name">${pr.name}</td>
           <td>₹${pr.mrp}</td>
           <td>₹${pr.rate}</td>
           <td>${pr.type}</td>
@@ -112,7 +127,7 @@ function buildHTML(order, type) {
         </tr>
         <tr>
           <td colspan="7">Total Weight</td>
-          <td>${order.totalWeight / 1000} Kg</td>
+          <td>${order.totalWeight} Kg</td>
         </tr>
       </tfoot>
     `
@@ -149,4 +164,80 @@ function buildHTML(order, type) {
   `;
 }
 
+function buildStockHTML(stockReport) {
+  const styles = `
+    <style>
+      body { font-family: Arial, sans-serif; padding: 10px; }
+      .pdf-body { position: relative; }
+      h1 { text-align: center; font-size: 20px; margin-bottom: 10px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+      .product-name { text-align: start !important; }
+      tfoot td { font-weight: bold; }
+      .footer {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 10px;
+        color: gray;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+  `;
+
+  // FIX: Use stockReport.products.map(...)
+  const rows = stockReport.products.map((p, i) => {
+    const pr = p.productId;
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td class="product-name">${pr?.name || ''}</td>
+        <td>₹${pr?.mrp || ''}</td>
+        <td>${pr?.weight || ''}</td>
+        <td>${p.quantity ?? '-'}</td>
+        <td>${pr?.type || ''}</td>
+        
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <html>
+    <head>${styles}</head>
+    <body class="pdf-body">
+      <div>
+        <h1>STOCK REPORT</h1>
+        <div class="order-info">
+          <p>Date: ${new Date(stockReport.createdAt).toLocaleDateString('en-IN')}</p>
+          <p>Supplier: ${stockReport.supplierId?.name || 'Unknown'}</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Sl No</th>
+              <th>Product</th>
+              <th>MRP</th>
+              <th>Weight</th>
+              <th>Stock</th>
+              <th>Type</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+        <div class="footer">
+          Generated with 💡 OrderSathi.in<br/>
+          Your stock report was created in seconds.<br/>
+          Try it now at www.ordersathi.in
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 export default generatePDF;
+export { generateStockPDF, generatePDF };

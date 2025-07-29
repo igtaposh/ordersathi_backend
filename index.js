@@ -8,6 +8,7 @@ import ccokiesParser from 'cookie-parser';
 import supplierRoutes from './routes/SupplierRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import stockReportRoutes from './routes/stockReportRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/supplier', supplierRoutes);
 app.use('/api/product', productRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/stock-report', stockReportRoutes);
 
 const PORT = process.env.PORT || 4000;
 
