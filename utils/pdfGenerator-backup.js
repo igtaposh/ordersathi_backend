@@ -1,6 +1,4 @@
 import puppeteer from 'puppeteer';
-import puppeteerCore from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
 import fs from 'fs';
 import path from 'path';
 
@@ -51,113 +49,39 @@ function findChromeExecutable() {
 }
 
 // Helper function to get browser configuration for different environments
-async function getBrowserConfig() {
+function getBrowserConfig() {
   const isProduction = process.env.NODE_ENV === 'production';
-
-  const baseArgs = [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-accelerated-2d-canvas',
-    '--no-first-run',
-    '--no-zygote',
-    '--disable-gpu',
-    '--disable-extensions'
-  ];
 
   const config = {
     headless: true,
-    args: baseArgs
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu',
+      '--disable-extensions'
+    ]
   };
 
-  // Strategy 1: Use environment variable if provided
+  // Priority order for executable path
   if (process.env.CHROME_EXECUTABLE_PATH) {
     config.executablePath = process.env.CHROME_EXECUTABLE_PATH;
     console.log(`Using Chrome from env var: ${config.executablePath}`);
-    return { config, useChromium: false };
-  }
-
-  // Strategy 2: In production, try different approaches
-  if (isProduction) {
-    // Try to find Chrome automatically
+  } else if (isProduction) {
+    // In production, try to find Chrome automatically
     const foundChrome = findChromeExecutable();
     if (foundChrome) {
       config.executablePath = foundChrome;
-      console.log(`Found Chrome executable: ${foundChrome}`);
-      return { config, useChromium: false };
-    }
-
-    // Strategy 3: Use Sparticuz Chromium as fallback
-    try {
-      const chromiumPath = await chromium.executablePath();
-      console.log('Using Sparticuz Chromium as fallback');
-      return {
-        config: {
-          headless: true,
-          executablePath: chromiumPath,
-          args: [...baseArgs, ...chromium.args]
-        },
-        useChromium: true
-      };
-    } catch (chromiumError) {
-      console.log('Sparticuz Chromium not available, using default Puppeteer');
-    }
-  }
-
-  // Strategy 4: Default Puppeteer (for local development)
-  console.log('Using default Puppeteer Chrome');
-  return { config, useChromium: false };
-}
-
-// Enhanced browser launcher with fallback strategies
-async function launchBrowser() {
-  const { config, useChromium } = await getBrowserConfig();
-  
-  console.log('Browser config:', JSON.stringify(config, null, 2));
-  console.log('Using Chromium package:', useChromium);
-
-  try {
-    // Strategy 1: Try with the configured setup
-    if (useChromium) {
-      return await puppeteerCore.launch(config);
     } else {
-      return await puppeteer.launch(config);
-    }
-  } catch (primaryError) {
-    console.error('Primary browser launch failed:', primaryError.message);
-    
-    // Strategy 2: Fallback to Sparticuz Chromium
-    try {
-      console.log('Attempting fallback to Sparticuz Chromium...');
-      const chromiumPath = await chromium.executablePath();
-      const fallbackConfig = {
-        headless: true,
-        executablePath: chromiumPath,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          ...chromium.args
-        ]
-      };
-      return await puppeteerCore.launch(fallbackConfig);
-    } catch (fallbackError) {
-      console.error('Fallback browser launch failed:', fallbackError.message);
-      
-      // Strategy 3: Try minimal config
-      console.log('Attempting minimal browser config...');
-      try {
-        return await puppeteer.launch({
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-      } catch (minimalError) {
-        console.error('Minimal browser launch failed:', minimalError.message);
-        throw new Error(`All browser launch strategies failed. Primary: ${primaryError.message}, Fallback: ${fallbackError.message}, Minimal: ${minimalError.message}`);
-      }
+      console.log('No Chrome executable found, letting Puppeteer handle it');
+      // Don't set executablePath, let Puppeteer use its managed Chrome
     }
   }
+
+  return config;
 }
 
 async function generatePDF(order, type = 'shopkeeper') {
@@ -166,15 +90,18 @@ async function generatePDF(order, type = 'shopkeeper') {
     // 1. Build the HTML content dynamically
     const html = buildHTML(order, type);
 
-    // 2. Launch browser with enhanced fallback strategy
-    console.log('Launching browser for PDF generation...');
-    browser = await launchBrowser();
+    // 2. Get browser config and log it for debugging
+    const browserConfig = getBrowserConfig();
+    console.log('Browser config:', JSON.stringify(browserConfig, null, 2));
+
+    // 3. Launch puppeteer with production-friendly configuration
+    browser = await puppeteer.launch(browserConfig);
     const page = await browser.newPage();
 
-    // 3. Load HTML content
+    // 4. Load HTML content
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
-    // 4. Generate PDF buffer
+    // 5. Generate PDF buffer
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -204,19 +131,18 @@ async function generatePDF(order, type = 'shopkeeper') {
       }
     }
   }
-}
-
-// 🔥 NEW: Stock Report PDF Generator
+}// 🔥 NEW: Stock Report PDF Generator
 async function generateStockPDF(stockReport) {
   let browser;
   try {
     const html = buildStockHTML(stockReport);
 
-    // Launch browser with enhanced fallback strategy
-    console.log('Launching browser for Stock PDF generation...');
-    browser = await launchBrowser();
+    // Get browser config and log it for debugging
+    const browserConfig = getBrowserConfig();
+    console.log('Stock PDF Browser config:', JSON.stringify(browserConfig, null, 2));
+
+    browser = await puppeteer.launch(browserConfig);
     const page = await browser.newPage();
-    
     await page.setContent(html, { waitUntil: 'networkidle0' });
     const pdfBuffer = await page.pdf({
       format: 'A4',

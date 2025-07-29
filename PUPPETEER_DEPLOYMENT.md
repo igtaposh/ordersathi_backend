@@ -1,37 +1,81 @@
-# Puppeteer Deployment Guide
+# Puppeteer Deployment Guide - Multi-Strategy Approach
+
+## What's New:
+- **Enhanced PDF Generator** with 3-tier fallback strategy
+- **Sparticuz Chromium** as reliable backup
+- **Automatic Chrome detection** for different platforms
+- **Comprehensive error handling** and logging
 
 ## Production Environment Setup
 
-### For Render.com (Recommended):
+### For Render.com (Multiple Strategies):
+
+#### Strategy 1: Using render.yaml (Recommended)
+1. **Use the provided `render.yaml` file** in your project root
+2. **Deploy directly** - Render will use the configuration automatically
+3. **Environment Variables** (already in render.yaml):
+   ```
+   NODE_ENV=production
+   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
+   PUPPETEER_CACHE_DIR=/opt/render/.cache/puppeteer
+   ```
+
+#### Strategy 2: Manual Render Dashboard Setup
 1. **Build Command**: 
    ```
-   npm install && npm run install-chrome
+   cd Backend && npm install && npx puppeteer browsers install chrome
    ```
 
 2. **Start Command**:
    ```
-   npm start
+   cd Backend && npm start
    ```
 
-3. **Environment Variables** (in Render dashboard):
+3. **Environment Variables**:
    ```
    NODE_ENV=production
    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
    ```
 
-4. **Important**: Do NOT set `CHROME_EXECUTABLE_PATH` for Render. Let Puppeteer manage Chrome automatically.
+#### Strategy 3: Fallback (if Chrome installation fails)
+The enhanced PDF generator will automatically fall back to:
+1. **Sparticuz Chromium** (lightweight, reliable)
+2. **Minimal Puppeteer config** (last resort)
 
-### Alternative for Render.com (if above doesn't work):
-1. **Build Command**:
-   ```
-   npm install && npx puppeteer browsers install chrome --platform=linux
-   ```
+## How the Enhanced System Works:
 
-2. **Environment Variables**:
-   ```
-   NODE_ENV=production
-   PUPPETEER_CACHE_DIR=/opt/render/.cache/puppeteer
-   ```
+### Tier 1: Environment-Specific Chrome
+- Checks `CHROME_EXECUTABLE_PATH` environment variable
+- Searches common Chrome installation paths
+
+### Tier 2: Sparticuz Chromium Fallback
+- Uses `@sparticuz/chromium` package
+- Optimized for serverless/cloud environments
+- Smaller footprint, more reliable
+
+### Tier 3: Minimal Puppeteer
+- Basic Puppeteer launch as last resort
+- Minimal configuration for maximum compatibility
+
+## Debugging in Production:
+
+### Check Logs:
+Look for these messages in your production logs:
+```
+✅ "Using Chrome from env var: /path/to/chrome"
+✅ "Found Chrome executable: /path/to/chrome"
+✅ "Using Sparticuz Chromium as fallback"
+✅ "Using default Puppeteer Chrome"
+```
+
+### Error Messages:
+- If you see "All browser launch strategies failed" - contact support
+- Check for memory/disk space issues
+- Verify all dependencies are installed
+
+## Testing:
+Run locally: `npm run test-chrome`
+This will verify your setup works before deployment.
 
 ### For Railway:
 1. Add environment variable:

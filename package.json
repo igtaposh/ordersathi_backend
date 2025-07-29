@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "npx puppeteer browsers install chrome || echo 'Chrome installation failed, continuing...'",
     "install-chrome": "npx puppeteer browsers install chrome",
-    "test-chrome": "node test-chrome.js"
+    "test-chrome": "node test-chrome.js",
+    "test-pdf": "node test-pdf-production.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sparticuz/chromium": "^138.0.2",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -25,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.2",
     "puppeteer": "^24.14.0",
+    "puppeteer-core": "^24.15.0",
     "twilio": "^5.8.0"
   },
   "puppeteer": {
