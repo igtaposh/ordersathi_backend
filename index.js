@@ -15,10 +15,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(ccokiesParser());
-app.use(cors({
-   origin: 'http://localhost:5173', // or your frontend URL
-   credentials: true
-}));
+// Enable CORS for frontend requests
+// Make sure to set the correct origin for your frontend application
+const corsOptions = {
+   origin: process.env.FRONTEND_URL, // Change this to your frontend URL
+   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+   credentials: true, // Allow cookies to be sent with requests
+};
+app.use(cors(corsOptions));   
+
+
 
 // Routes
 app.use('/api/auth', authRoutes);
