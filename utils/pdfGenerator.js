@@ -2,41 +2,88 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 
-async function generatePDF(order, type = 'shopkeeper') {
-  // 1. Build the HTML content dynamically
-  const html = buildHTML(order, type);
+// Helper function to get browser configuration for different environments
+function getBrowserConfig() {
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  // 2. Launch puppeteer
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+  const config = {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu',
+      '--disable-extensions'
+    ]
+  };
 
-  // 3. Load HTML content
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  // Add executable path if provided (for platforms like Render, Railway, etc.)
+  if (process.env.CHROME_EXECUTABLE_PATH) {
+    config.executablePath = process.env.CHROME_EXECUTABLE_PATH;
+  }
 
-  // 4. Generate PDF buffer
-  const pdfBuffer = await page.pdf({
-    format: 'A4',
-    printBackground: true,
-    margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
-  });
+  // For Render.com specifically
+  if (process.env.RENDER) {
+    config.executablePath = '/opt/render/.cache/puppeteer/chrome/linux-1350114/chrome-linux64/chrome';
+  }
 
-  await browser.close();
-  return pdfBuffer;
+  return config;
 }
 
-// 🔥 NEW: Stock Report PDF Generator
+async function generatePDF(order, type = 'shopkeeper') {
+  let browser;
+  try {
+    // 1. Build the HTML content dynamically
+    const html = buildHTML(order, type);
+
+    // 2. Launch puppeteer with production-friendly configuration
+    browser = await puppeteer.launch(getBrowserConfig());
+    const page = await browser.newPage();
+
+    // 3. Load HTML content
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    // 4. Generate PDF buffer
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
+    });
+
+    return pdfBuffer;
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    throw new Error(`PDF generation failed: ${error.message}`);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}// 🔥 NEW: Stock Report PDF Generator
 async function generateStockPDF(stockReport) {
-  const html = buildStockHTML(stockReport);
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
-  const pdfBuffer = await page.pdf({
-    format: 'A4',
-    printBackground: true,
-    margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
-  });
-  await browser.close();
-  return pdfBuffer;
+  let browser;
+  try {
+    const html = buildStockHTML(stockReport);
+    browser = await puppeteer.launch(getBrowserConfig());
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
+    });
+    return pdfBuffer;
+  } catch (error) {
+    console.error('Stock PDF generation error:', error);
+    throw new Error(`Stock PDF generation failed: ${error.message}`);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
 
 // 🔧 HTML builder function

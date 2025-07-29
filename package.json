@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "keywords": [],
   "author": "",
@@ -23,5 +24,8 @@
     "mongoose": "^8.16.2",
     "puppeteer": "^24.14.0",
     "twilio": "^5.8.0"
+  },
+  "puppeteer": {
+    "skipDownload": false
   }
 }
