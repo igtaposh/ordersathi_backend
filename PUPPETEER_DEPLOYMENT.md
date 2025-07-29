@@ -2,16 +2,35 @@
 
 ## Production Environment Setup
 
-### For Render.com:
-1. Add these environment variables in your Render dashboard:
+### For Render.com (Recommended):
+1. **Build Command**: 
+   ```
+   npm install && npm run install-chrome
+   ```
+
+2. **Start Command**:
+   ```
+   npm start
+   ```
+
+3. **Environment Variables** (in Render dashboard):
    ```
    NODE_ENV=production
    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
    ```
 
-2. Add build command in Render:
+4. **Important**: Do NOT set `CHROME_EXECUTABLE_PATH` for Render. Let Puppeteer manage Chrome automatically.
+
+### Alternative for Render.com (if above doesn't work):
+1. **Build Command**:
    ```
-   npm install && npx puppeteer browsers install chrome
+   npm install && npx puppeteer browsers install chrome --platform=linux
+   ```
+
+2. **Environment Variables**:
+   ```
+   NODE_ENV=production
+   PUPPETEER_CACHE_DIR=/opt/render/.cache/puppeteer
    ```
 
 ### For Railway:

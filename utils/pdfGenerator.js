@@ -2,6 +2,52 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 
+// Helper function to find Chrome executable paths
+function findChromeExecutable() {
+  const possiblePaths = [
+    // Puppeteer's default paths
+    '/opt/render/.cache/puppeteer/chrome/linux-*/chrome-linux64/chrome',
+    // System Chrome paths
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    // Railway specific
+    '/usr/bin/google-chrome-stable',
+    // Heroku
+    '/app/.chrome-for-testing/chrome-linux64/chrome'
+  ];
+
+  for (const chromePath of possiblePaths) {
+    try {
+      if (fs.existsSync(chromePath)) {
+        console.log(`Found Chrome at: ${chromePath}`);
+        return chromePath;
+      }
+    } catch (error) {
+      // Handle glob patterns by checking if any files match
+      if (chromePath.includes('*')) {
+        try {
+          const baseDir = chromePath.split('*')[0];
+          if (fs.existsSync(baseDir)) {
+            const files = fs.readdirSync(baseDir);
+            for (const file of files) {
+              const fullPath = path.join(baseDir, file, 'chrome-linux64/chrome');
+              if (fs.existsSync(fullPath)) {
+                console.log(`Found Chrome at: ${fullPath}`);
+                return fullPath;
+              }
+            }
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+    }
+  }
+  return null;
+}
+
 // Helper function to get browser configuration for different environments
 function getBrowserConfig() {
   const isProduction = process.env.NODE_ENV === 'production';
@@ -20,14 +66,19 @@ function getBrowserConfig() {
     ]
   };
 
-  // Add executable path if provided (for platforms like Render, Railway, etc.)
+  // Priority order for executable path
   if (process.env.CHROME_EXECUTABLE_PATH) {
     config.executablePath = process.env.CHROME_EXECUTABLE_PATH;
-  }
-
-  // For Render.com specifically
-  if (process.env.RENDER) {
-    config.executablePath = '/opt/render/.cache/puppeteer/chrome/linux-1350114/chrome-linux64/chrome';
+    console.log(`Using Chrome from env var: ${config.executablePath}`);
+  } else if (isProduction) {
+    // In production, try to find Chrome automatically
+    const foundChrome = findChromeExecutable();
+    if (foundChrome) {
+      config.executablePath = foundChrome;
+    } else {
+      console.log('No Chrome executable found, letting Puppeteer handle it');
+      // Don't set executablePath, let Puppeteer use its managed Chrome
+    }
   }
 
   return config;
@@ -39,27 +90,45 @@ async function generatePDF(order, type = 'shopkeeper') {
     // 1. Build the HTML content dynamically
     const html = buildHTML(order, type);
 
-    // 2. Launch puppeteer with production-friendly configuration
-    browser = await puppeteer.launch(getBrowserConfig());
+    // 2. Get browser config and log it for debugging
+    const browserConfig = getBrowserConfig();
+    console.log('Browser config:', JSON.stringify(browserConfig, null, 2));
+
+    // 3. Launch puppeteer with production-friendly configuration
+    browser = await puppeteer.launch(browserConfig);
     const page = await browser.newPage();
 
-    // 3. Load HTML content
+    // 4. Load HTML content
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
-    // 4. Generate PDF buffer
+    // 5. Generate PDF buffer
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
     });
 
+    console.log('PDF generated successfully');
     return pdfBuffer;
   } catch (error) {
     console.error('PDF generation error:', error);
-    throw new Error(`PDF generation failed: ${error.message}`);
+    console.error('Error stack:', error.stack);
+
+    // Provide more specific error information
+    if (error.message.includes('Browser was not found')) {
+      throw new Error(`Chrome browser not found. Please ensure Chrome is installed. Original error: ${error.message}`);
+    } else if (error.message.includes('Failed to launch')) {
+      throw new Error(`Failed to launch browser. This might be due to missing dependencies. Original error: ${error.message}`);
+    } else {
+      throw new Error(`PDF generation failed: ${error.message}`);
+    }
   } finally {
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error('Error closing browser:', closeError);
+      }
     }
   }
 }// 🔥 NEW: Stock Report PDF Generator
@@ -67,7 +136,12 @@ async function generateStockPDF(stockReport) {
   let browser;
   try {
     const html = buildStockHTML(stockReport);
-    browser = await puppeteer.launch(getBrowserConfig());
+
+    // Get browser config and log it for debugging
+    const browserConfig = getBrowserConfig();
+    console.log('Stock PDF Browser config:', JSON.stringify(browserConfig, null, 2));
+
+    browser = await puppeteer.launch(browserConfig);
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     const pdfBuffer = await page.pdf({
@@ -75,13 +149,28 @@ async function generateStockPDF(stockReport) {
       printBackground: true,
       margin: { top: '40px', bottom: '60px', left: '30px', right: '30px' },
     });
+
+    console.log('Stock PDF generated successfully');
     return pdfBuffer;
   } catch (error) {
     console.error('Stock PDF generation error:', error);
-    throw new Error(`Stock PDF generation failed: ${error.message}`);
+    console.error('Error stack:', error.stack);
+
+    // Provide more specific error information
+    if (error.message.includes('Browser was not found')) {
+      throw new Error(`Chrome browser not found for stock PDF. Please ensure Chrome is installed. Original error: ${error.message}`);
+    } else if (error.message.includes('Failed to launch')) {
+      throw new Error(`Failed to launch browser for stock PDF. This might be due to missing dependencies. Original error: ${error.message}`);
+    } else {
+      throw new Error(`Stock PDF generation failed: ${error.message}`);
+    }
   } finally {
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error('Error closing browser for stock PDF:', closeError);
+      }
     }
   }
 }
