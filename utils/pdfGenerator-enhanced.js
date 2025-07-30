@@ -317,8 +317,9 @@ function buildHTML(order, type) {
         <tr>
           <td>${i + 1}</td>
           <td>${pr.name}</td>
-          <td>${pr.type}</td>
+          <td>${pr.mrp}</td>
           <td>${p.quantity}</td>
+          <td>${pr.type}</td>
         </tr>
       `;
       }
@@ -326,7 +327,7 @@ function buildHTML(order, type) {
 
    const tableHeaders = type === 'shopkeeper'
       ? `<tr><th>Sl No</th><th>Particulars</th><th>MRP</th><th>Rate</th><th>Type</th><th>Weight</th><th>Qty</th><th>Amount</th></tr>`
-      : `<tr><th>Sl No</th><th>Product</th><th>Type</th><th>Qty</th></tr>`;
+      : `<tr><th>Sl No</th><th>Product</th><th>MRP</th><th>Qty</th><th>Type</th></tr>`;
 
    const totalsRow = type === 'shopkeeper'
       ? `
@@ -404,7 +405,6 @@ function buildStockHTML(stockReport) {
         <td>${i + 1}</td>
         <td class="product-name">${pr?.name || ''}</td>
         <td>₹${pr?.mrp || ''}</td>
-        <td>${pr?.weight || ''}</td>
         <td>${p.quantity ?? '-'}</td>
         <td>${pr?.type || ''}</td>
         
@@ -428,7 +428,6 @@ function buildStockHTML(stockReport) {
               <th>Sl No</th>
               <th>Product</th>
               <th>MRP</th>
-              <th>Weight</th>
               <th>Stock</th>
               <th>Type</th>
 

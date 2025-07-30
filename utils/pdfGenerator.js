@@ -112,7 +112,7 @@ async function getBrowserConfig() {
 // Enhanced browser launcher with fallback strategies
 async function launchBrowser() {
   const { config, useChromium } = await getBrowserConfig();
-  
+
   console.log('Browser config:', JSON.stringify(config, null, 2));
   console.log('Using Chromium package:', useChromium);
 
@@ -125,7 +125,7 @@ async function launchBrowser() {
     }
   } catch (primaryError) {
     console.error('Primary browser launch failed:', primaryError.message);
-    
+
     // Strategy 2: Fallback to Sparticuz Chromium
     try {
       console.log('Attempting fallback to Sparticuz Chromium...');
@@ -144,7 +144,7 @@ async function launchBrowser() {
       return await puppeteerCore.launch(fallbackConfig);
     } catch (fallbackError) {
       console.error('Fallback browser launch failed:', fallbackError.message);
-      
+
       // Strategy 3: Try minimal config
       console.log('Attempting minimal browser config...');
       try {
@@ -216,7 +216,7 @@ async function generateStockPDF(stockReport) {
     console.log('Launching browser for Stock PDF generation...');
     browser = await launchBrowser();
     const page = await browser.newPage();
-    
+
     await page.setContent(html, { waitUntil: 'networkidle0' });
     const pdfBuffer = await page.pdf({
       format: 'A4',
@@ -317,8 +317,9 @@ function buildHTML(order, type) {
         <tr>
           <td>${i + 1}</td>
           <td>${pr.name}</td>
-          <td>${pr.type}</td>
+          <td>${pr.mrp}</td>
           <td>${p.quantity}</td>
+          <td>${pr.type}</td>
         </tr>
       `;
     }
@@ -326,7 +327,7 @@ function buildHTML(order, type) {
 
   const tableHeaders = type === 'shopkeeper'
     ? `<tr><th>Sl No</th><th>Particulars</th><th>MRP</th><th>Rate</th><th>Type</th><th>Weight</th><th>Qty</th><th>Amount</th></tr>`
-    : `<tr><th>Sl No</th><th>Product</th><th>Type</th><th>Qty</th></tr>`;
+    : `<tr><th>Sl No</th><th>Product</th><th>MRP</th><th>Qty</th><th>Type</th></tr>`;
 
   const totalsRow = type === 'shopkeeper'
     ? `
@@ -404,7 +405,6 @@ function buildStockHTML(stockReport) {
         <td>${i + 1}</td>
         <td class="product-name">${pr?.name || ''}</td>
         <td>₹${pr?.mrp || ''}</td>
-        <td>${pr?.weight || ''}</td>
         <td>${p.quantity ?? '-'}</td>
         <td>${pr?.type || ''}</td>
         
@@ -428,7 +428,6 @@ function buildStockHTML(stockReport) {
               <th>Sl No</th>
               <th>Product</th>
               <th>MRP</th>
-              <th>Weight</th>
               <th>Stock</th>
               <th>Type</th>
 
