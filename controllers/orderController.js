@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Supplier from '../models/Supplier.js';
+import User from '../models/User.js';
 import generatePDF from '../utils/pdfGenerator.js';
 
 export const createOrder = async (req, res) => {
@@ -59,12 +60,15 @@ export const generatePDF_doc = async (req, res) => {
     const order = await Order.findOne({ _id: req.params.id, userId: req.userId })
       .populate('supplierId')
       .populate('products.productId');
-
+    console.log(order)
     if (!order) return res.status(404).json({ msg: "Order not found" });
+    
 
     const type = req.query.type || 'shopkeeper';
 
-    const pdfBuffer = await generatePDF(order, type);
+    const shopName = await User.findById(req.userId).select('shopName');
+
+    const pdfBuffer = await generatePDF(order, type, shopName);
 
     res.set({
       'Content-Type': 'application/pdf',
@@ -90,7 +94,9 @@ export const getMonthlySummary = async (req, res) => {
 
     const totalOrders = orders.length;
     const totalAmount = orders.reduce((sum, o) => sum + o.totalAmount, 0);
-    const totalWeight = orders.reduce((sum, o) => sum + o.totalWeight, 0);
+    const weight = orders.reduce((sum, o) => sum + o.totalWeight, 0);
+    const totalWeight = weight.toFixed(2); // round to 2 decimal places
+
 
     res.json({ totalOrders, totalAmount, totalWeight });
   } catch (err) {

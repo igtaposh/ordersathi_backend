@@ -1,5 +1,6 @@
 import Product from "../models/Product.js";
 import StockReport from "../models/Stock.js";
+import User from "../models/User.js";
 import { generateStockPDF } from "../utils/pdfGenerator.js";
 
 export const createStockReport = async (req, res) => {
@@ -49,8 +50,8 @@ export const downloadStockReport = async (req, res) => {
       .populate('products.productId');
 
     if (!stockReport) return res.status(404).json({ msg: "Stock report not found" });
-
-    const pdfBuffer = await generateStockPDF(stockReport);
+    const shopName = await User.findById(req.userId).select('shopName');
+    const pdfBuffer = await generateStockPDF(stockReport, shopName);
 
     res.set({
       'Content-Type': 'application/pdf',
