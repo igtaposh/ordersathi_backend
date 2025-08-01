@@ -72,7 +72,7 @@
 
 ```
 Shopkeeper-Order-Manager/
-├── Backend/
+├── ordersathi_backend/
 │   ├── controllers/           # Business logic controllers
 │   │   ├── orderController.js      # Order management
 │   │   ├── productController.js    # Product CRUD operations
@@ -121,11 +121,11 @@ Before running this application, make sure you have the following installed:
 
 2. **Backend Setup**
    ```bash
-   cd Backend
+   cd ordersathi_backend
    npm install
 3. **Environment Configuration**
    
-   Create a `.env` file in the `Backend` folder:
+   Create a `.env` file in the `ordersathi_backend` folder:
    ```env
    # Database Configuration
    MONGO_URI=mongodb://localhost:27017/ordersathi
