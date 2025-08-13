@@ -48,7 +48,7 @@ export const downloadStockReport = async (req, res) => {
     const stockReport = await StockReport.findOne({ _id: req.params.id, userId: req.userId })
       .populate('supplierId')
       .populate('products.productId');
-
+    
     if (!stockReport) return res.status(404).json({ msg: "Stock report not found" });
     const shopName = await User.findById(req.userId).select('shopName');
     const pdfBuffer = await generateStockPDF(stockReport, shopName);

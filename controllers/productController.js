@@ -35,6 +35,17 @@ export const addProduct = async (req, res) => {
    }
 };
 
+export const addBulkProducts = async (req, res) => {
+   try {
+      const data = req.body; // JSON array aayega
+      const result = await Product.insertMany(data);
+      res.status(200).json({ message: "Products inserted", result });
+
+   } catch (err) {
+      res.status(500).json({ msg: "Error adding bulk products", error: err.message });
+   }
+};
+
 // Get All Products
 export const getProducts = async (req, res) => {
    try {

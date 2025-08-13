@@ -254,7 +254,7 @@ function buildHTML(order, type, shopName) {
    const styles = `
   <style>
       @page {
-         margin: 15mm;
+         margin: 5mm;
          size: A4;
          -webkit-print-color-adjust: exact;
          print-color-adjust: exact;
@@ -268,7 +268,7 @@ function buildHTML(order, type, shopName) {
 
       body {
          font-family: 'Arial', sans-serif;
-         font-size: 10px;
+         font-size: 20px;
          line-height: 1.3;
          color: #000;
          background: white;
@@ -280,7 +280,6 @@ function buildHTML(order, type, shopName) {
          width: 100%;
          max-width: 210mm;
          margin: 0 auto;
-         padding: 15mm;
          background: white;
          position: relative;
       }
@@ -345,7 +344,7 @@ function buildHTML(order, type, shopName) {
       }
 
       .detail-label {
-         font-size: 8px;
+         font-size: 16px;
          font-weight: 600;
          text-transform: uppercase;
          color: #666;
@@ -355,7 +354,7 @@ function buildHTML(order, type, shopName) {
       .detail-value {
          font-weight: 600;
          color: #000;
-         font-size: 10px;
+         font-size: 20px;
       }
 
       .content-section {
@@ -366,7 +365,7 @@ function buildHTML(order, type, shopName) {
          width: 100%;
          border-collapse: collapse;
          margin-bottom: 12px;
-         font-size: 9px;
+         font-size: 18px;
         
       }
 
@@ -382,7 +381,7 @@ function buildHTML(order, type, shopName) {
          padding: 8px 4px;
          text-align: center;
          font-weight: 700;
-         font-size: 9px;
+         font-size: 18px;
          text-transform: uppercase;
       }
 
@@ -390,7 +389,7 @@ function buildHTML(order, type, shopName) {
          border: 1px solid #333;
          padding: 6px 4px;
          text-align: center;
-         font-size: 9px;
+         font-size: 18px;
          font-weight: 500;
       }
 
@@ -434,7 +433,7 @@ function buildHTML(order, type, shopName) {
       .summary-table {
          width: 250px;
          border: 2px solid #000;
-         font-size: 10px;
+         font-size: 20px;
         
       }
 
@@ -477,7 +476,7 @@ function buildHTML(order, type, shopName) {
 
       .footer-branding {
          text-align: center;
-         font-size: 8px;
+         font-size: 16px;
          color: #555;
          line-height: 1.3;
       }
@@ -495,7 +494,7 @@ function buildHTML(order, type, shopName) {
          text-align: center;
          margin: 8px 0;
          position: relative;
-         font-size: 10px;
+         font-size: 20px;
       }
 
       .section-divider::before,
@@ -520,7 +519,7 @@ function buildHTML(order, type, shopName) {
          background: white;
          padding: 0 10px;
          font-weight: 600;
-         font-size: 9px;
+         font-size: 18px;
       }
 
       /* Graphics and decorative elements */
@@ -582,7 +581,7 @@ function buildHTML(order, type, shopName) {
          top: -8px;
          left: 50%;
          transform: translateX(-50%);
-         font-size: 8px;
+         font-size: 16px;
          color: #000;
       }
 
@@ -596,7 +595,7 @@ function buildHTML(order, type, shopName) {
          position: absolute;
          top: -5px;
          left: -5px;
-         font-size: 10px;
+         font-size: 20px;
          color: #000;
       }
 
@@ -605,7 +604,7 @@ function buildHTML(order, type, shopName) {
          position: absolute;
          bottom: -5px;
          right: -5px;
-         font-size: 10px;
+         font-size: 20px;
          color: #000;
       }
 
@@ -647,11 +646,9 @@ function buildHTML(order, type, shopName) {
         <tr>
           <td>${i + 1}</td>
           <td class="product-name">${pr.name}</td>
-          <td>₹${pr.mrp}</td>
           <td>₹${pr.rate}</td>
           <td>${pr.weight}</td>
-          <td>${p.quantity}</td>
-          <td>${pr.type}</td>
+          <td>${p.quantity} ${pr.type}</td>
           <td>₹${amount}</td>
         </tr>
       `;
@@ -660,9 +657,8 @@ function buildHTML(order, type, shopName) {
         <tr>
           <td>${i + 1}</td>
           <td class="product-name">${pr.name}</td>
-          <td>${pr.mrp}</td>
-          <td>${p.quantity}</td>
-          <td>${pr.type}</td>
+          <td>${p.quantity} ${pr.type}</td>
+          
         </tr>
       `;
       }
@@ -674,22 +670,18 @@ function buildHTML(order, type, shopName) {
 
    const tableHeaders = type === 'shopkeeper'
       ? `<tr>
-          <th style="width: 8%;">Sl No.</th>
-          <th style="width: 25%;">Particulars</th>
-          <th style="width: 12%;">MRP</th>
-          <th style="width: 12%;">Rate</th>
-          <th style="width: 12%;">Weight</th>
-          <th style="width: 8%;">Qty</th>
-          <th style="width: 10%;">Type</th>
-          <th style="width: 13%;">Amount</th>
+          <th style="width: 10%;">Sl No.</th>
+          <th style="width: 35%;">Particulars</th>
+          <th style="width: 15%;">Rate</th>
+          <th style="width: 15%;">Weight</th>
+          <th style="width: 10%;">Qty</th>
+          <th style="width: 15%;">Amount</th>
        </tr>`
       : `<tr>
           
           <th style="width: 15%;">Sl No.</th>
-          <th style="width: 35%;">Particulars</th>
-          <th style="width: 20%;">MRP</th>
+          <th style="width: 70%;">Particulars</th>
           <th style="width: 15%;">Qty</th>
-          <th style="width: 15%;">Type</th>
        </tr>`;
 
    const totalsRow = type === 'shopkeeper'
@@ -783,7 +775,7 @@ function buildHTML(order, type, shopName) {
 
          <div class="footer-branding">
             <p>🚀 Generated by <span class="brand-name">OrderSathi.in</span> - Professional Order Management System</p>
-            <p>📅 This document was auto-generated on August 1, 2025 at 10:30 AM</p>
+            <p>📅 This document was auto-generated on ${new Date().toLocaleString('en-IN')}</p>
             <p>🌐 For support, visit www.ordersathi.in or contact support@ordersathi.in</p>
          </div>
       </div>
@@ -809,7 +801,7 @@ function buildStockHTML(stockReport, shopName) {
    const styles = `
   <style>
       @page {
-         margin: 15mm;
+         margin: 5mm;
          size: A4;
          -webkit-print-color-adjust: exact;
          print-color-adjust: exact;
@@ -835,7 +827,6 @@ function buildStockHTML(stockReport, shopName) {
          width: 100%;
          max-width: 210mm;
          margin: 0 auto;
-         padding: 15mm;
          background: white;
          position: relative;
       }
@@ -889,7 +880,7 @@ function buildStockHTML(stockReport, shopName) {
          display: grid;
          grid-template-columns: repeat(2, 1fr);
          gap: 10px;
-         font-size: 10px;
+         font-size: 15px;
       }
 
       .detail-item {
@@ -900,7 +891,7 @@ function buildStockHTML(stockReport, shopName) {
       }
 
       .detail-label {
-         font-size: 8px;
+         font-size: 12px;
          font-weight: 600;
          text-transform: uppercase;
          color: #666;
@@ -910,7 +901,7 @@ function buildStockHTML(stockReport, shopName) {
       .detail-value {
          font-weight: 600;
          color: #000;
-         font-size: 10px;
+         font-size: 15px;
       }
 
       .content-section {
@@ -921,7 +912,7 @@ function buildStockHTML(stockReport, shopName) {
          width: 100%;
          border-collapse: collapse;
          margin-bottom: 12px;
-         font-size: 9px;
+         font-size: 13px;
         
       }
 
@@ -937,7 +928,7 @@ function buildStockHTML(stockReport, shopName) {
          padding: 8px 4px;
          text-align: center;
          font-weight: 700;
-         font-size: 9px;
+         font-size: 13px;
          text-transform: uppercase;
       }
 
@@ -945,7 +936,7 @@ function buildStockHTML(stockReport, shopName) {
          border: 1px solid #333;
          padding: 6px 4px;
          text-align: center;
-         font-size: 9px;
+         font-size: 18px;
          font-weight: 500;
       }
 
@@ -959,7 +950,7 @@ function buildStockHTML(stockReport, shopName) {
          font-weight: 700;
       }
 
-      .item-name {
+      .product-name {
          text-align: left !important;
          font-weight: 600;
          padding-left: 8px !important;
@@ -989,7 +980,7 @@ function buildStockHTML(stockReport, shopName) {
       .summary-table {
          width: 250px;
          border: 2px solid #000;
-         font-size: 10px;
+         font-size: 15px;
         
       }
 
@@ -1032,7 +1023,7 @@ function buildStockHTML(stockReport, shopName) {
 
       .footer-branding {
          text-align: center;
-         font-size: 8px;
+         font-size: 12px;
          color: #555;
          line-height: 1.3;
       }
@@ -1050,7 +1041,7 @@ function buildStockHTML(stockReport, shopName) {
          text-align: center;
          margin: 8px 0;
          position: relative;
-         font-size: 10px;
+         font-size: 15px;
       }
 
       .section-divider::before,
@@ -1075,7 +1066,7 @@ function buildStockHTML(stockReport, shopName) {
          background: white;
          padding: 0 10px;
          font-weight: 600;
-         font-size: 9px;
+         font-size: 13px;
       }
 
       /* Graphics and decorative elements */
@@ -1137,7 +1128,7 @@ function buildStockHTML(stockReport, shopName) {
          top: -8px;
          left: 50%;
          transform: translateX(-50%);
-         font-size: 8px;
+         font-size: 16px;
          color: #000;
       }
 
@@ -1151,7 +1142,7 @@ function buildStockHTML(stockReport, shopName) {
          position: absolute;
          top: -5px;
          left: -5px;
-         font-size: 10px;
+         font-size: 20px;
          color: #000;
       }
 
@@ -1176,7 +1167,6 @@ function buildStockHTML(stockReport, shopName) {
             box-shadow: none;
             border: none;
             margin: 0;
-            padding: 20px;
          }
 
          .signature-section,
@@ -1201,9 +1191,7 @@ function buildStockHTML(stockReport, shopName) {
       <tr>
           <td>${i + 1}</td>
           <td class="product-name">${pr.name}</td>
-          <td>${pr.mrp}</td>
-          <td>${p.quantity}</td>
-          <td>${pr.type}</td>
+          <td>${p.quantity > 0 ? `${p.quantity} ${pr.type}` : 'Nil'}</td>
       </tr>
     `;
    }).join('');
@@ -1251,11 +1239,9 @@ function buildStockHTML(stockReport, shopName) {
             <thead>
             <tr>
           
-          <th style="width: 15%;">Sl No.</th>
-          <th style="width: 35%;">Particulars</th>
-          <th style="width: 20%;">MRP</th>
-          <th style="width: 15%;">Stock</th>
-          <th style="width: 15%;">Type</th>
+          <th style="width: 7%;">Sl No.</th>
+          <th style="width: 36%;">Particulars</th>
+          <th style="width: 7%;">Stock</th>
        </tr>
                
             </thead>
