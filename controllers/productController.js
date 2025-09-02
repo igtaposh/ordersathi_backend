@@ -37,7 +37,7 @@ export const addProduct = async (req, res) => {
 
 export const addBulkProducts = async (req, res) => {
    try {
-      const data = req.body; // JSON array aayega
+      const data = req.body; // JSON array
       const result = await Product.insertMany(data);
       res.status(200).json({ message: "Products inserted", result });
 
@@ -62,15 +62,26 @@ export const getProducts = async (req, res) => {
 // Get Single Product
 export const getProduct = async (req, res) => {
    try {
-      const product = await Product.findOne({ _id: req.params.id, userId: req.userId })
-         .populate('supplierId', 'name contact');
+    const product = await Product.findById(req.params.id).populate('supplierId', 'name');
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
 
-      if (!product) return res.status(404).json({ msg: "Product not found" });
+    // Send the product data
+    res.status(200).json(product);
 
-      res.json(product);
-   } catch (err) {
-      res.status(500).json({ msg: "Error fetching product", error: err.message });
-   }
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product details',
+      error: error.message
+    });
+  }
 };
 
 // Update Product
@@ -99,5 +110,14 @@ export const deleteProduct = async (req, res) => {
       res.json({ msg: "Product deleted" });
    } catch (err) {
       res.status(500).json({ msg: "Error deleting product", error: err.message });
+   }
+};
+
+export const getProductBySupplier = async (req, res) => {
+   try {
+      const products = await Product.find({ supplierId: req.params.supplierId });
+      res.json(products);
+   } catch (err) {
+      res.status(500).json({ msg: "Error fetching products", error: err.message });
    }
 };
