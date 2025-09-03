@@ -39,13 +39,13 @@ export const sendOtp = async (req, res) => {
       // Development mode: just log OTP
       if (process.env.NODE_ENV === 'development') {
          console.log(`OTP for ${phone}: ${otp}`);
-         return res.status(200).json({ msg: "OTP sent (check logs)" });
+         return res.status(200).json({ msg: "OTP sent successfull, Check your messages" });
       }
 
       // Production mode: send via Twilio
       try {
          await twilioClient.messages.create({
-            body: `OrderSathi code: ${otp}. Valid for 5 minutes.`,
+            body: `${otp} is Your OTP for OrderSathi. Do not share with anyone. This OTP will be valid for next 5 minuts. - OrderSathi`,
             from: process.env.TWILIO_PHONE_NUMBER,
             to: `+91${phone}`
          });
