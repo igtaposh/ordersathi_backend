@@ -81,6 +81,21 @@ export const generatePDF_doc = async (req, res) => {
   }
 };
 
+export const deleteOrderData = async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, userId: req.userId })
+      .populate('supplierId')
+      .populate('products.productId');
+
+    if (!order) return res.status(404).json({ msg: "Order not found" });
+
+    await Order.deleteOne({ _id: req.params.id, userId: req.userId });
+
+    res.json({ msg: "Order deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ msg: "Error deleting order", error: err.message });
+  }
+};
 
 
 export const getMonthlySummary = async (req, res) => {

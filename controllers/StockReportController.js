@@ -42,6 +42,20 @@ export async function getStockReport(req, res) {
    }
 }
 
+export async function deleteStockReport(req, res) {
+   try {
+      const stockReport = await StockReport.findOne({ _id: req.params.id, userId: req.userId })
+         .populate('supplierId')
+         .populate('products.productId');
+
+      if (!stockReport) return res.status(404).json({ msg: "Stock report not found" });
+
+      await stockReport.deleteOne({ _id: req.params.id, userId: req.userId });
+      res.json({ msg: "Stock report deleted successfully" });
+   } catch (err) {
+      res.status(500).json({ msg: "Error deleting stock report", error: err.message });
+   }
+}
 
 export const downloadStockReport = async (req, res) => {
   try {
@@ -70,8 +84,7 @@ export const getRecentReports = async (req, res) => {
   try {
     const stockReport = await StockReport.find({ userId: req.userId })
       .populate('supplierId', 'name')
-      .sort({ createdAt: -1 })
-      .limit(5);
+      .sort({ createdAt: -1 });
 
     const result = stockReport.map(o => ({
       id: o._id,
