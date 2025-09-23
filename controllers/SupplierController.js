@@ -63,7 +63,8 @@ export const deleteSupplier = async (req, res) => {
   try {
     const deleted = await Supplier.findOneAndDelete({ _id: req.params.id, userId: req.userId });
     if (!deleted) return res.status(404).json({ msg: "Supplier not found" });
-    res.json({ msg: "Supplier deleted" });
+    const deleteProducts = await Product.deleteMany({ supplierId: req.params.id, userId: req.userId });
+    res.json({ msg: "Supplier deleted and its products removed", products: deleteProducts });
   } catch (err) {
     res.status(500).json({ msg: "Error deleting supplier", error: err.message });
   }
